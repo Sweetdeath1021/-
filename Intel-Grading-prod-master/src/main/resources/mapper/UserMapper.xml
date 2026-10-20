@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.grade.mapper.UserMapper">
+    <insert id="register">
+        INSERT INTO
+            grd_user_role(user_id, role_id)
+        VALUES
+            (#{userId}, #{roleId})
+    </insert>
+
+    <insert id="registerTeacher">
+        INSERT INTO
+            grd_teacher(user_id, teacher_class, subject)
+        VALUES
+            (#{userId}, #{teacherClass}, #{subject})
+    </insert>
+
+    <insert id="registerStudent">
+        INSERT INTO
+            grd_student(user_id, student_number)
+        VALUES
+            (#{userId}, #{studentNumber})
+    </insert>
+
+    <select id="getRoleId" resultType="java.lang.Integer">
+        SELECT role_id
+        FROM grd_user_role
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="selectClass" resultType="java.lang.String">
+        SELECT teacher_class
+        FROM grd_teacher
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="studentList" resultType="org.grade.bean.response.StudentResponse">
+        SELECT gu.user_id, gu.user_name
+        FROM grd_user gu
+            JOIN (
+                SELECT DISTINCT user_id
+                FROM grd_student
+                WHERE student_class = #{studentClass}
+            ) gs ON gu.user_id = gs.user_id
+        WHERE gu.user_school = #{userSchool}
+    </select>
+
+    <select id="getStudentNumber" resultType="java.lang.String">
+        SELECT student_number
+            FROM grd_student
+        WHERE user_id = #{userId}
+    </select>
+</mapper>

@@ -1,0 +1,51 @@
+{
+  "id": "4408528",
+  "name": "啊",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "2778188",
+      "name": "个人中心",
+      "font_class": "gerenzhongxin",
+      "unicode": "e65f",
+      "unicode_decimal": 58975
+    },
+    {
+      "icon_id": "36077753",
+      "name": "退出登录",
+      "font_class": "tuichudenglu",
+      "unicode": "e676",
+      "unicode_decimal": 58998
+    },
+    {
+      "icon_id": "2076338",
+      "name": "切换",
+      "font_class": "qiehuan",
+      "unicode": "e8a8",
+      "unicode_decimal": 59560
+    },
+    {
+      "icon_id": "2101923",
+      "name": "高效",
+      "font_class": "gaoxiao",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
+      "icon_id": "3904591",
+      "name": "智能数据＊",
+      "font_class": "zhinengshuju",
+      "unicode": "e69e",
+      "unicode_decimal": 59038
+    },
+    {
+      "icon_id": "3978392",
+      "name": "跟踪",
+      "font_class": "genzong",
+      "unicode": "e66a",
+      "unicode_decimal": 58986
+    }
+  ]
+}

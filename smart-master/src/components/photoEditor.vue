@@ -1,0 +1,280 @@
+<template>
+    <div class="base">
+        <tui-image-editor :include-ui="useDefaultUI" :options="options" class="imageEditor" ref="tuiImageEditor"
+        @objectAdded="add"></tui-image-editor>
+    </div>
+</template>
+<script>
+const locale_zh = {
+  ZoomIn: '放大',
+  ZoomOut: '缩小',
+  Hand: '手掌',
+  History: '历史',
+  Resize: '调整宽高',
+  Crop: '裁剪',
+  DeleteAll: '全部删除',
+  Delete: '删除',
+  Undo: '撤销',
+  Redo: '反撤销',
+  Reset: '重置',
+  Flip: '镜像',
+  Rotate: '旋转',
+  Draw: '画',
+  Shape: '形状标注',
+  Icon: '图标标注',
+  Text: '文字标注',
+  Mask: '遮罩',
+  Filter: '滤镜',
+  Bold: '加粗',
+  Italic: '斜体',
+  Underline: '下划线',
+  Left: '左对齐',
+  Center: '居中',
+  Right: '右对齐',
+  Color: '颜色',
+  'Text size': '字体大小',
+  Custom: '自定义',
+  Square: '正方形',
+  Apply: '应用',
+  Cancel: '取消',
+  'Flip X': 'X 轴',
+  'Flip Y': 'Y 轴',
+  Range: '区间',
+  Stroke: '描边',
+  Fill: '填充',
+  Circle: '圆',
+  Triangle: '三角',
+  Rectangle: '矩形',
+  Free: '曲线',
+  Straight: '直线',
+  Arrow: '箭头',
+  'Arrow-2': '箭头2',
+  'Arrow-3': '箭头3',
+  'Star-1': '星星1',
+  'Star-2': '星星2',
+  Polygon: '多边形',
+  Location: '定位',
+  Heart: '心形',
+  Bubble: '气泡',
+  'Custom icon': '自定义图标',
+  'Load Mask Image': '加载蒙层图片',
+  Grayscale: '灰度',
+  Blur: '模糊',
+  Sharpen: '锐化',
+  Emboss: '浮雕',
+  'Remove White': '除去白色',
+  Distance: '距离',
+  Brightness: '亮度',
+  Noise: '噪音',
+  'Color Filter': '彩色滤镜',
+  Sepia: '棕色',
+  Sepia2: '棕色2',
+  Invert: '负片',
+  Pixelate: '像素化',
+  Threshold: '阈值',
+  Tint: '色调',
+  Multiply: '正片叠底',
+  Blend: '混合色',
+  Width: '宽度',
+  Height: '高度',
+  'Lock Aspect Ratio': '锁定宽高比例'
+}
+
+const customTheme = {
+  "common.bi.image": "", // 左上角logo图片
+  "common.bisize.width": "0px",
+  "common.bisize.height": "0px",
+  "common.backgroundImage": "none",
+  "common.backgroundColor": "#f3f4f6",
+  "common.border": "1px solid #333",
+
+  // header
+  "header.backgroundImage": "none",
+  "header.backgroundColor": "#f3f4f6",
+  "header.border": "0px",
+  
+  // load button
+  "loadButton.backgroundColor": "#fff",
+  "loadButton.border": "1px solid #ddd",
+  "loadButton.color": "#222",
+  "loadButton.fontFamily": "NotoSans, sans-serif",
+  "loadButton.fontSize": "12px",
+  "loadButton.display": "none", // 隐藏
+
+  // download button
+  "downloadButton.backgroundColor": "#fdba3b",
+  "downloadButton.border": "1px solid #fdba3b",
+  "downloadButton.color": "#fff",
+  "downloadButton.fontFamily": "NotoSans, sans-serif",
+  "downloadButton.fontSize": "12px",
+  "downloadButton.display": "none", // 隐藏
+
+  // icons default
+  "menu.normalIcon.color": "#8a8a8a",
+  "menu.activeIcon.color": "#555555",
+  "menu.disabledIcon.color": "#ccc",
+  "menu.hoverIcon.color": "#e9e9e9",
+  "submenu.normalIcon.color": "#8a8a8a",
+  "submenu.activeIcon.color": "#e9e9e9",
+
+  "menu.iconSize.width": "24px",
+  "menu.iconSize.height": "24px",
+  "submenu.iconSize.width": "32px",
+  "submenu.iconSize.height": "32px",
+
+  // submenu primary color
+  "submenu.backgroundColor": "#1e1e1e",
+  "submenu.partition.color": "#858585",
+
+  // submenu labels
+  "submenu.normalLabel.color": "#858585",
+  "submenu.normalLabel.fontWeight": "lighter",
+  "submenu.activeLabel.color": "#fff",
+  "submenu.activeLabel.fontWeight": "lighter",
+
+  // checkbox style
+  "checkbox.border": "1px solid #ccc",
+  "checkbox.backgroundColor": "#fff",
+
+  // rango style
+  "range.pointer.color": "#fff",
+  "range.bar.color": "#666",
+  "range.subbar.color": "#d1d1d1",
+
+  "range.disabledPointer.color": "#414141",
+  "range.disabledBar.color": "#282828",
+  "range.disabledSubbar.color": "#414141",
+
+  "range.value.color": "#fff",
+  "range.value.fontWeight": "lighter",
+  "range.value.fontSize": "11px",
+  "range.value.border": "1px solid #353535",
+  "range.value.backgroundColor": "#151515",
+  "range.title.color": "#fff",
+  "range.title.fontWeight": "lighter",
+
+  // colorpicker style
+  "colorpicker.button.border": "1px solid #1e1e1e",
+  "colorpicker.title.color": "#fff",
+};
+import 'tui-color-picker/dist/tui-color-picker.css';
+import 'tui-image-editor/dist/tui-image-editor.css';
+import { ImageEditor } from '@toast-ui/vue-image-editor';
+
+export default {
+    name: 'PhotoEditor',
+    components: {
+        'tui-image-editor': ImageEditor,
+    },
+    data() {
+        return {
+            useDefaultUI: true,
+            options: {
+                // for tui-image-editor component's "options" prop
+                cssMaxWidth: 700,
+                cssMaxHeight: 500,
+                includeUI: {
+                    loadImage: {
+                      path: '图片地址',
+                      name: 'image'
+                    },
+                    menu: ['resize', 'crop', 'rotate', 'draw', 'shape', 'icon', 'text', 'filter'], // 底部菜单按钮列表 隐藏镜像flip和遮罩mask
+                    initMenu: 'draw', // 默认打开的菜单项
+                    menuBarPosition: 'bottom', // 菜单所在的位置
+                    locale: locale_zh, // 本地化语言为中文
+                    theme: customTheme // 自定义样式
+                },
+            },
+            id: '',//存有添加的对象(矩形框等)的最大id
+            position:[]//所有矩形框的位置信息
+        };
+    },
+    methods: {
+        add(props) {
+            this.id = props.id
+        }
+    },
+    mounted() {
+        //自定义download
+        const download = document.createElement('button')
+        download.innerHTML = 'download'
+        this.$(download).addClass('imageEditorDownload')
+        document.querySelector('.tui-image-editor-header-buttons').appendChild(download)
+
+        this.$('.imageEditorDownload').click((e) => {
+            // console.log(this.id);
+            e.preventDefault()
+            this.position = []
+            for (let i = 0; i <= this.id; i++){
+                const e = this.$refs.tuiImageEditor.invoke('getObjectProperties', i, ['left', 'top', 'width', 'height', 'type'])
+                if (e) {
+                    if (e.type == 'rect') {
+                    this.position.push({
+                        left: e.left,
+                        top: e.top,
+                        width: e.width,
+                        height:e.height
+                    })
+                }
+                }
+            }
+            console.log(this.position);
+        })
+        this.$('.tie-shape-button .rect').click(() => {
+            this.$('.tui-image-editor-main').removeClass('tui-image-editor-menu-shape')
+            this.$('.tie-btn-shape').removeClass('active')
+            this.$('.tie-shape-button').removeClass('rect')
+        })
+    }
+};
+</script>
+<style scoped>
+.base {
+    position: relative;
+    width: 90vw;
+    height: 80vh;
+    margin: 70px 0;
+    padding: 0 40px;
+}
+.imageEditor {
+    border-radius: 12px;
+    background: transparent;
+}
+</style>
+<style>
+.tui-image-editor-container .tui-image-editor-controls {
+    background: #ffffffc2;
+}
+.tui-image-editor-container .tui-image-editor-main-container {
+    background: #ffffffc2!important;
+}
+.tui-image-editor-wrap::-webkit-scrollbar {
+    display: none; 
+}
+.tui-image-editor-download-btn {
+    display: none!important;
+}
+.imageEditorDownload {
+    display: inline-block;
+    position: relative;
+    width: 120px;
+    height: 40px;
+    padding: 0;
+    line-height: 40px;
+    outline: none;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    font-family: 'Noto Sans', sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    vertical-align: middle;
+    letter-spacing: .3px;
+    text-align: center;
+    background-color: #fdba3b;
+    border: 1px solid #fdba3b;
+    color: #fff;
+    font-family: 'Noto Sans', sans-serif;
+    font-size: 12px;
+}
+</style>

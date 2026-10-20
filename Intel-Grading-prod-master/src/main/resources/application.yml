@@ -1,0 +1,79 @@
+# 配置数据库地址
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: #
+    username: #
+    password: #
+  servlet:
+    multipart:
+      max-file-size: 1024MB
+      max-request-size: 1024MB
+  # 配置RabbitMQ地址
+  rabbitmq:
+    host: #
+    port: 5672
+    username: #
+    password: #
+  # 配置Redis地址
+  redis:
+    host: #
+    port: 6379
+    password: #
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: 100
+    database: 0
+# 配置端口路径
+server:
+  port: 8080
+  servlet:
+    context-path: /grading
+
+mybatis-plus:
+  configuration:
+    #在映射实体或者属性时，将数据库中表名和字段名中的下划线去掉，按照驼峰命名法映射
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: ASSIGN_ID
+  mapper-locations: classpath*:/mapper/**/*.xml
+# 配置日志输出等级
+logging:
+  level:
+    org:
+      grade: debug
+#阿里云oss
+aliyun:
+  oss:
+    file:
+      endpoint: #
+      keyid: #
+      keysecret: #
+      bucketname: #
+#分页插件pageHelper
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+# 设定云端接口请求头
+api:
+  grade: # 设定智能阅卷云端接口
+    url:
+    request:
+      header:
+      secret:
+  comment: # 设定多样评语云端接口
+    url:
+    request:
+      header:
+      secret:
+  extend: # 设定智能辅助云端接口
+    url:
+    request:
+      header:
+      secret:

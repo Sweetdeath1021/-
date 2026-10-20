@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.grade.mapper.MenuMapper">
+    <select id="selectPermsByUserId" resultType="java.lang.String">
+        SELECT DISTINCT m.`menu_perms`
+        FROM grd_user_role ur
+                 LEFT JOIN `grd_role` r ON ur.`role_id` = r.`role_id`
+                 LEFT JOIN `grd_role_menu` rm ON ur.`role_id` = rm.`role_id`
+                 LEFT JOIN `grd_menu` m ON m.`menu_id` = rm.`menu_id`
+        WHERE user_id = #{userId}
+    </select>
+</mapper>
