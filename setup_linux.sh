@@ -29,19 +29,24 @@ XML
 
 echo "== 4. MySQL 8 / Redis / RabbitMQ（Docker）"
 REG=${REG:-mirror.gcr.io/library}   # Docker Hub 限流时用镜像；国内可改成自己的加速器
-docker start mysql-grading 2>/dev/null || docker run -d --name mysql-grading -p 3306:3306 \
-  -e MYSQL_ROOT_PASSWORD=$DB_PASS -e MYSQL_DATABASE=intel_grading $REG/mysql:8.0 \
+# 端口只绑定 127.0.0.1，避免本地数据库 / Redis 暴露到网络
+docker start mysql-grading 2>/dev/null || docker run -d --name mysql-grading -p 127.0.0.1:3306:3306 \
+  -e MYSQL_ROOT_PASSWORD=$DB_PASS $REG/mysql:8.0 \
   --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-docker start redis-grading 2>/dev/null || docker run -d --name redis-grading -p 6379:6379 $REG/redis:7
-docker start rabbitmq-grading 2>/dev/null || docker run -d --name rabbitmq-grading -p 5672:5672 -p 15672:15672 $REG/rabbitmq:3-management
+docker start redis-grading 2>/dev/null || docker run -d --name redis-grading -p 127.0.0.1:6379:6379 $REG/redis:7
+docker start rabbitmq-grading 2>/dev/null || docker run -d --name rabbitmq-grading \
+  -p 127.0.0.1:5672:5672 -p 127.0.0.1:15672:15672 $REG/rabbitmq:3-management
 
 echo "== 5. 导入数据库 + 结构补丁"
+MYSQL="docker exec -i mysql-grading mysql -uroot -p$DB_PASS --default-character-set=utf8mb4"
 until docker exec mysql-grading mysqladmin -uroot -p$DB_PASS ping 2>/dev/null | grep -q alive; do sleep 3; done
-sleep 5
-if ! docker exec mysql-grading mysql -uroot -p$DB_PASS -N intel_grading -e "show tables like 'grd_user'" 2>/dev/null | grep -q grd_user; then
-  docker exec -i mysql-grading mysql -uroot -p$DB_PASS intel_grading < "$BACK/src/main/resources/db/grade.sql"
-  docker exec -i mysql-grading mysql -uroot -p$DB_PASS intel_grading < "$BACK/src/main/resources/db/patch_schema.sql"
+until $MYSQL -e "select 1" >/dev/null 2>&1; do sleep 3; done
+$MYSQL -e "CREATE DATABASE IF NOT EXISTS intel_grading CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+if ! $MYSQL -N intel_grading -e "show tables like 'grd_user'" 2>/dev/null | grep -q grd_user; then
+  $MYSQL intel_grading < "$BACK/src/main/resources/db/grade.sql"
 fi
+# 补丁可重复执行，每次都跑一遍以修复已有的旧库
+$MYSQL intel_grading < "$BACK/src/main/resources/db/patch_schema.sql"
 
 echo "== 6. 前端依赖"
 (cd "$FRONT" && npm ci)
